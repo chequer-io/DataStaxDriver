@@ -220,6 +220,21 @@ namespace Cassandra.Data
             get { return _connectionState; }
         }
 
+        public override DataTable GetSchema()
+        {
+            return null;
+        }
+
+        public override DataTable GetSchema(string collectionName)
+        {
+            return null;
+        }
+
+        public override DataTable GetSchema(string collectionName, string[] restrictionValues)
+        {
+            return null;
+        }
+        
         public object Clone()
         {
             var conn = new CqlConnection(_connectionStringBuilder.ConnectionString);
