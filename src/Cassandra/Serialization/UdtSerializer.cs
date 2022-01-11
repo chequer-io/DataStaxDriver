@@ -40,7 +40,7 @@ namespace Cassandra.Serialization
         {
             var udtInfo = (UdtColumnInfo)typeInfo;
             var map = GetUdtMap(udtInfo.Name);
-            return map == null ? typeof(byte[]) : map.NetType;
+            return map == null ? typeof(IDictionary<string, object>) : map.NetType;
         }
 
         protected internal virtual UdtMap GetUdtMap(string name)
@@ -59,10 +59,6 @@ namespace Cassandra.Serialization
         {
             var udtInfo = (UdtColumnInfo)typeInfo;
             var map = GetUdtMap(udtInfo.Name);
-            if (map == null)
-            {
-                return buffer;
-            }
             var valuesList = new object[udtInfo.Fields.Count];
             var maxOffset = offset + length;
             for (var i = 0; i < udtInfo.Fields.Count; i++)
@@ -81,7 +77,21 @@ namespace Cassandra.Serialization
                 valuesList[i] = DeserializeChild(protocolVersion, buffer, offset, itemLength, field.TypeCode, field.TypeInfo);
                 offset += itemLength;
             }
-            return map.ToObject(valuesList);
+
+            if (map != null)
+                return map.ToObject(valuesList);
+
+            if (udtInfo.Fields.Count != valuesList.Length)
+                return buffer;
+
+            var result = new Dictionary<string, object>();
+
+            for (var i = 0; i < udtInfo.Fields.Count; i++)
+            {
+                result.Add(udtInfo.Fields[i].Name, valuesList[i]);
+            }
+
+            return result;
         }
 
         public override byte[] Serialize(ushort protocolVersion, object value)
