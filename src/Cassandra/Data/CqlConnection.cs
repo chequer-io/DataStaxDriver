@@ -28,7 +28,6 @@ namespace Cassandra.Data
     public class CqlConnection : DbConnection, ICloneable
     {
         private CassandraConnectionStringBuilder _connectionStringBuilder;
-        private readonly static ConcurrentDictionary<string, Cluster> _clusters = new ConcurrentDictionary<string, Cluster>();
         private Cluster _managedCluster;
         private ConnectionState _connectionState = ConnectionState.Closed;
         private CqlBatchTransaction _currentTransaction;
@@ -77,7 +76,7 @@ namespace Cassandra.Data
         /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
-            if (_connectionState == ConnectionState.Open)
+            if (_connectionState != ConnectionState.Closed)
                 Close();
             base.Dispose(disposing);
         }
@@ -91,7 +90,12 @@ namespace Cassandra.Data
                 ManagedConnection.Dispose();
                 ManagedConnection = null;
             }
-            _managedCluster = null;
+            if (_managedCluster != null)
+            {
+                _managedCluster.Dispose();
+                _managedCluster = null;
+            }
+            _serverVersion = null;
         }
 
         /// <inheritdoc />
@@ -164,15 +168,10 @@ namespace Cassandra.Data
         /// <returns></returns>
         protected virtual Cluster CreateCluster(CassandraConnectionStringBuilder connectionStringBuilder)
         {
-            if (!_clusters.TryGetValue(_connectionStringBuilder.ClusterName, out Cluster cluster))
-            {
-                var builder = _connectionStringBuilder.MakeClusterBuilder();
-                OnBuildingCluster(builder);
-                cluster = builder.Build();
-                _clusters.TryAdd(_connectionStringBuilder.ClusterName, cluster);
-            }
+            var builder = _connectionStringBuilder.MakeClusterBuilder();
+            OnBuildingCluster(builder);
 
-            return cluster;
+            return builder.Build();
         }
 
         /// <summary>
