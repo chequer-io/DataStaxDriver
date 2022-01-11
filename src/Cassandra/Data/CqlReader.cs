@@ -32,6 +32,7 @@ namespace Cassandra.Data
         private readonly IEnumerator<Row> enumerRows;
         private readonly RowSet popul;
         private IEnumerable<Row> enumRows;
+        private DataTable schemaTable;
 
         public override int Depth
         {
@@ -85,7 +86,36 @@ namespace Cassandra.Data
 
         public override DataTable GetSchemaTable()
         {
-            throw new NotSupportedException();
+            if (schemaTable == null)
+            {
+                schemaTable = new DataTable();
+                schemaTable.Columns.Add(SchemaTableColumn.ColumnName, typeof(string));
+                schemaTable.Columns.Add(SchemaTableColumn.ColumnOrdinal, typeof(int));
+                schemaTable.Columns.Add(SchemaTableColumn.BaseTableName, typeof(string));
+                schemaTable.Columns.Add(SchemaTableColumn.BaseSchemaName, typeof(string));
+                schemaTable.Columns.Add(SchemaTableOptionalColumn.IsReadOnly, typeof(bool));
+                schemaTable.Columns.Add(SchemaTableOptionalColumn.IsHidden, typeof(bool));
+                schemaTable.Columns.Add(SchemaTableColumn.DataType, typeof(Type));
+                schemaTable.Columns.Add(SchemaTableColumn.IsKey, typeof(bool));
+                schemaTable.Columns.Add("DataTypeName", typeof(string));
+
+                foreach (var column in popul.Columns)
+                {
+                    schemaTable.Rows.Add(
+                        column.Name,
+                        column.Index,
+                        column.Table,
+                        column.Keyspace,
+                        true,
+                        false,
+                        column.Type,
+                        false,
+                        column.TypeCode.ToString().ToUpper()
+                    );
+                }
+            }
+
+            return schemaTable;
         }
 
         /// <inheritdoc />
