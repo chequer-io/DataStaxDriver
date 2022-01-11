@@ -33,6 +33,7 @@ namespace Cassandra.Data
         private ConnectionState _connectionState = ConnectionState.Closed;
         private CqlBatchTransaction _currentTransaction;
         internal protected ISession ManagedConnection;
+        private string _serverVersion;
 
         /// <summary>
         /// Initializes a <see cref="CqlConnection"/>.
@@ -211,7 +212,22 @@ namespace Cassandra.Data
         /// <inheritdoc />
         public override string ServerVersion
         {
-            get { return "2.0"; }
+            get
+            {
+                if (_connectionState == ConnectionState.Closed || _connectionState == ConnectionState.Broken)
+                    throw new InvalidOperationException("Connection is not open.");
+
+                if (string.IsNullOrEmpty(_serverVersion))
+                {
+                    using (var command = CreateCommand())
+                    {
+                        command.CommandText = "SELECT release_version FROM system.local";
+                        _serverVersion = command.ExecuteScalar().ToString();   
+                    }
+                }
+
+                return _serverVersion;
+            }
         }
 
         /// <inheritdoc />
