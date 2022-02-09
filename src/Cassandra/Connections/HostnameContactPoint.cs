@@ -29,14 +29,16 @@ namespace Cassandra.Connections
         private readonly ProtocolOptions _protocolOptions;
         private readonly IServerNameResolver _serverNameResolver;
         private readonly string _hostname;
+        private readonly string _hostnameWithPort;
         private volatile IEnumerable<IConnectionEndPoint> _cachedEndpoints = new List<IConnectionEndPoint>();
         private readonly bool _keepContactPointsUnresolved;
+        private readonly int _port;
 
         public HostnameContactPoint(
-            IDnsResolver dnsResolver, 
-            ProtocolOptions protocolOptions, 
-            IServerNameResolver serverNameResolver, 
-            bool keepContactPointsUnresolved, 
+            IDnsResolver dnsResolver,
+            ProtocolOptions protocolOptions,
+            IServerNameResolver serverNameResolver,
+            bool keepContactPointsUnresolved,
             string hostname)
         {
             _dns = dnsResolver ?? throw new ArgumentNullException(nameof(dnsResolver));
@@ -44,12 +46,26 @@ namespace Cassandra.Connections
             _serverNameResolver = serverNameResolver ?? throw new ArgumentNullException(nameof(serverNameResolver));
             _keepContactPointsUnresolved = keepContactPointsUnresolved;
             _hostname = hostname ?? throw new ArgumentNullException(nameof(hostname));
+
+            var hostnameSplit = hostname.Split(':');
+
+            if (hostnameSplit.Length >= 2)
+            {
+                _hostname = string.Concat(hostnameSplit[..^1]);
+                _port = int.Parse(hostnameSplit[^1].Trim());
+            }
+            else
+            {
+                _port = protocolOptions.Port;
+            }
+
+            _hostnameWithPort = $"{_hostname}:{_port}";
         }
 
         public bool CanBeResolved => true;
 
-        public string StringRepresentation => _hostname;
-        
+        public string StringRepresentation => _hostnameWithPort;
+
         public override string ToString()
         {
             return StringRepresentation;
@@ -72,6 +88,7 @@ namespace Cassandra.Connections
             }
 
             IPHostEntry hostEntry = null;
+
             try
             {
                 hostEntry = await _dns.GetHostEntryAsync(_hostname).ConfigureAwait(false);
@@ -95,7 +112,7 @@ namespace Cassandra.Connections
 
                 connectionEndPoints.AddRange(
                     hostEntry.AddressList.Select(resolvedAddress =>
-                        new ConnectionEndPoint(new IPEndPoint(resolvedAddress, _protocolOptions.Port), _serverNameResolver, this)));
+                        new ConnectionEndPoint(new IPEndPoint(resolvedAddress, _port > 0 ? _port : _protocolOptions.Port), _serverNameResolver, this)));
             }
 
             _cachedEndpoints = connectionEndPoints;
@@ -104,7 +121,7 @@ namespace Cassandra.Connections
 
         private bool TypedEquals(HostnameContactPoint other)
         {
-            return Equals(_hostname, other._hostname);
+            return Equals(_hostnameWithPort, other._hostnameWithPort);
         }
 
         public bool Equals(IContactPoint other)
@@ -134,7 +151,7 @@ namespace Cassandra.Connections
 
         public override int GetHashCode()
         {
-            return _hostname.GetHashCode();
+            return _hostnameWithPort.GetHashCode();
         }
     }
 }
