@@ -51,7 +51,7 @@ namespace Cassandra.Connections
 
             if (hostnameSplit.Length >= 2)
             {
-                _hostname = string.Concat(hostnameSplit[..^1]);
+                _hostname = string.Join(':', hostnameSplit[..^1]);
                 _port = int.Parse(hostnameSplit[^1].Trim());
             }
             else
