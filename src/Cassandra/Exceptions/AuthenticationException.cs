@@ -28,9 +28,18 @@ namespace Cassandra
         /// </summary>
         public IPEndPoint Host { get; private set; }
 
+        public int? Code { get; }
+
         public AuthenticationException(string message)
             : base(message)
         {
+            Code = null;
+        }
+
+        public AuthenticationException(string message, int code)
+            : base(message)
+        {
+            Code = code;
         }
 
         public AuthenticationException(string message, IPEndPoint host)

@@ -20,7 +20,7 @@ namespace Cassandra
     {
         public override DriverException CreateException()
         {
-            return new AuthenticationException(Message);
+            return new AuthenticationException(Message, Code);
         }
 
         protected override void Load(FrameReader reader)
