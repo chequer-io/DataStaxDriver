@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Data.Common;
 using System.Runtime.Serialization;
 
 namespace Cassandra
@@ -23,7 +24,7 @@ namespace Cassandra
     /// Top level class for exceptions thrown by the driver.
     /// </summary>
     [Serializable]
-    public class DriverException : Exception
+    public class DriverException : DbException
     {
         public DriverException(string message)
             : base(message)
