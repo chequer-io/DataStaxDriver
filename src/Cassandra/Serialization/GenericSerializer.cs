@@ -45,7 +45,7 @@ namespace Cassandra.Serialization
             { ColumnTypeCode.SmallInt, TypeSerializer.PrimitiveShortSerializer },
             { ColumnTypeCode.Text, TypeSerializer.PrimitiveStringSerializer },
             { ColumnTypeCode.Time, TypeSerializer.PrimitiveLocalTimeSerializer},
-            { ColumnTypeCode.Timestamp, TypeSerializer.PrimitiveDateTimeOffsetSerializer },
+            { ColumnTypeCode.Timestamp, TypeSerializer.CqlTimestampSerializer },
             { ColumnTypeCode.Timeuuid, TypeSerializer.PrimitiveGuidSerializer },
             { ColumnTypeCode.TinyInt, TypeSerializer.PrimitiveSbyteSerializer },
             { ColumnTypeCode.Uuid, TypeSerializer.PrimitiveGuidSerializer },

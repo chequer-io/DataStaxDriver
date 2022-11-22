@@ -32,6 +32,7 @@ namespace Cassandra.Serialization
         public static readonly TypeSerializer<bool> PrimitiveBooleanSerializer = new BooleanSerializer();
         public static readonly TypeSerializer<byte[]> PrimitiveByteArraySerializer = new ByteArraySerializer();
         public static readonly TypeSerializer<DateTimeOffset> PrimitiveDateTimeOffsetSerializer = new DateTimeOffsetSerializer();
+        public static readonly TypeSerializer<CqlTimestamp> CqlTimestampSerializer = new CqlTimestampSerializer();
         public static readonly TypeSerializer<DateTime> PrimitiveDateTimeSerializer = new DateTimeSerializer();
         public static readonly TypeSerializer<decimal> PrimitiveDecimalSerializer = new DecimalSerializer();
         public static readonly TypeSerializer<double> PrimitiveDoubleSerializer = new DoubleSerializer();
