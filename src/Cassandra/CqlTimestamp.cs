@@ -1,8 +1,6 @@
-using System;
-
 namespace Cassandra
 {
-    public class CqlTimestamp
+    public struct CqlTimestamp
     {
         public long Miliseconds { get; set; }
 
@@ -18,6 +16,70 @@ namespace Cassandra
         private const int DaysPer4Years = DaysPerYear * 4 + 1;
         private const int DaysPer100Years = DaysPer4Years * 25 - 1;
         private const int DaysPer400Years = DaysPer100Years * 4 + 1;
+
+        public int Year
+        {
+            get
+            {
+                ParseDate(out var year, out _, out _);
+                return year;
+            }
+        }
+
+        public int Month
+        {
+            get
+            {
+                ParseDate(out _, out var month, out _);
+                return month;
+            }
+        }
+
+        public int Day
+        {
+            get
+            {
+                ParseDate(out _, out _, out var day);
+                return day;
+            }
+        }
+        
+        public int Hour
+        {
+            get
+            {
+                ParseTime(out var hour, out _, out _, out _);
+                return hour;
+            }
+        }
+
+        public int Minute
+        {
+            get
+            {
+                ParseTime(out _, out var minute, out _, out _);
+                return minute;
+            }
+        }
+
+        public int Second
+        {
+            get
+            {
+                ParseTime(out _, out _, out var second, out _);
+                return second;
+            }
+        }
+
+        public int Milisecond
+        {
+            get
+            {
+                ParseTime(out _, out _, out _, out var milisecond);
+                return milisecond;
+            }
+        }
+
 
         public CqlTimestamp(long miliseconds)
         {
