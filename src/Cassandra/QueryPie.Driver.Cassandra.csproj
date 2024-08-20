@@ -13,7 +13,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Product>DataStax C# Driver for Apache Cassandra</Product>
-    <AssemblyOriginatorKeyFile>../../build/datastax.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PackageId>CassandraCSharpDriver</PackageId>
     <Title>DataStax C# Driver for Apache Cassandra</Title>
